@@ -1,0 +1,624 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+  <meta charset="UTF-8" />
+  
+  <!-- Mobile & Viewport Optimization -->
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes, viewport-fit=cover" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <meta name="mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-title" content="Continuity Guardian" />
+  <meta name="format-detection" content="telephone=no" />
+  <meta name="theme-color" content="#08070d" />
+  <meta name="msapplication-TileColor" content="#08070d" />
+
+  <!-- Favicon & Touch Icons -->
+  <link rel="icon" type="image/png" sizes="32x32" href="favicon.png" />
+  <link rel="icon" type="image/png" sizes="16x16" href="favicon.png" />
+  <link rel="apple-touch-icon" sizes="180x180" href="favicon.png" />
+  <link rel="shortcut icon" type="image/png" href="favicon.png" />
+  <link rel="mask-icon" href="favicon.png" color="#8b5cf6" />
+
+  <!-- Primary SEO Meta -->
+  <title>Continuity Guardian — AI Script Continuity Supervisor & Screenplay Doctor</title>
+  <meta name="title" content="Continuity Guardian — AI Script Continuity Supervisor & Screenplay Doctor" />
+  <meta name="description" content="Autonomous multi-agent screenplay continuity supervisor and script doctor engine powered by Google Gemini 3.5, Google ADK, Cloud Firestore, and Parallel AI MCP. Catches narrative lore fractures, character timeline contradictions, and real-world factual errors before cameras roll." />
+  <meta name="keywords" content="script continuity, screenplay doctor, film production AI, AI script supervisor, Google Gemini 3.5, Google ADK, Parallel AI MCP, Cloud Firestore show bible, narrative consistency, Hollywood screenwriting tools, TV show bible, lore continuity checker, writers room AI, script coverage, movie pre-production, screenplay analysis" />
+  <meta name="author" content="Continuity Guardian Studio Engineering Team" />
+  <meta name="publisher" content="Continuity Guardian Studio" />
+  <meta name="robots" content="index, follow, max-snippet:-1, max-image-preview:large, max-video-preview:-1" />
+  <meta name="googlebot" content="index, follow" />
+  <meta name="language" content="English" />
+  <meta name="application-name" content="Continuity Guardian" />
+  <meta name="rating" content="General" />
+  <link rel="canonical" href="http://localhost:3000/" />
+
+  <!-- Open Graph / Facebook / LinkedIn / Discord -->
+  <meta property="og:type" content="website" />
+  <meta property="og:url" content="http://localhost:3000/" />
+  <meta property="og:site_name" content="Continuity Guardian Studio" />
+  <meta property="og:title" content="Continuity Guardian — AI Script Continuity Supervisor & Screenplay Doctor" />
+  <meta property="og:description" content="Autonomous multi-agent screenplay continuity supervisor and script doctor powered by Google Gemini 3.5, Google ADK, Cloud Firestore, and Parallel AI MCP." />
+  <meta property="og:image" content="assets/favicon.png" />
+  <meta property="og:image:type" content="image/png" />
+  <meta property="og:image:width" content="512" />
+  <meta property="og:image:height" content="512" />
+  <meta property="og:image:alt" content="Continuity Guardian Studio Logo" />
+  <meta property="og:locale" content="en_US" />
+
+  <!-- Twitter Card -->
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:url" content="http://localhost:3000/" />
+  <meta name="twitter:title" content="Continuity Guardian — AI Script Continuity Supervisor & Screenplay Doctor" />
+  <meta name="twitter:description" content="Catch costly narrative contradictions, character lore breaks, and real-world factual errors before the cameras roll with Google Gemini 3.5." />
+  <meta name="twitter:image" content="assets/favicon.png" />
+  <meta name="twitter:image:alt" content="Continuity Guardian Studio Preview" />
+
+  <!-- Schema.org JSON-LD Structured Data for Rich Search Snippets -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "WebApplication",
+    "name": "Continuity Guardian",
+    "alternateName": "Continuity Guardian Studio",
+    "applicationCategory": "MultimediaApplication",
+    "operatingSystem": "All",
+    "url": "http://localhost:3000",
+    "description": "Autonomous screenplay continuity analyst and script doctor engine powered by Google Gemini 3.5, Google ADK, Cloud Firestore, and Parallel AI MCP.",
+    "creator": {
+      "@type": "Organization",
+      "name": "Continuity Guardian Studio Team"
+    },
+    "offers": {
+      "@type": "Offer",
+      "price": "0",
+      "priceCurrency": "USD"
+    },
+    "featureList": [
+      "Real-time screenplay entity and claim extraction",
+      "Multi-season Firestore Show Bible canon cross-referencing",
+      "Parallel AI MCP live web factual grounding",
+      "Autonomous Script Doctor screenplay auto-rewrite",
+      "Bayesian confidence contradiction scoring"
+    ]
+  }
+  </script>
+
+  <!-- Typography -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&family=Outfit:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body class="cinema-theme">
+
+  <!-- Ambient Cinematic Glows -->
+  <div class="ambient-glow ambient-glow--top" aria-hidden="true"></div>
+  <div class="ambient-glow ambient-glow--accent" aria-hidden="true"></div>
+
+  <!-- ════════════════════ HEADER ════════════════════ -->
+  <header class="site-header" role="banner">
+    <div class="container header-inner">
+      <a href="./" class="logo" aria-label="Continuity Guardian home">
+        <span class="logo-icon-box">
+          <span class="logo-icon" aria-hidden="true">🎬</span>
+        </span>
+        <div class="logo-text-group">
+          <span class="logo-title">Continuity <strong>Guardian</strong></span>
+          <span class="logo-badge">Studio Edition · Gemini 3.5</span>
+        </div>
+      </a>
+
+      <!-- Live Canon Status Indicator -->
+      <div class="live-status-pill" id="live-status-pill" title="Live Firestore Database connection">
+        <span class="pulse-dot"></span>
+        <span class="status-label">Show Bible: <strong id="canon-status-count">3 Episodes</strong></span>
+      </div>
+
+      <nav class="header-nav" aria-label="Site navigation">
+        <button type="button" class="nav-btn active" id="tab-btn-studio">
+          🎥 Script Studio
+        </button>
+        <button type="button" class="nav-btn" id="tab-btn-apidocs">
+          ⚡ API Reference
+        </button>
+        <button type="button" class="nav-btn nav-btn--accent" id="btn-open-bible">
+          📖 Show Bible
+        </button>
+        <a href="http://localhost:8000/docs" target="_blank" rel="noopener noreferrer" class="nav-btn nav-btn--external nav-link--api" title="Open Interactive Swagger UI Console">
+          Swagger ↗
+        </a>
+        <a href="http://localhost:8000/redoc" target="_blank" rel="noopener noreferrer" class="nav-btn nav-btn--external" title="Open ReDoc Architecture Specification">
+          ReDoc ↗
+        </a>
+        <a href="ContinuityGuardian_System_Documentation.pdf" target="_blank" rel="noopener noreferrer" class="nav-btn nav-btn--external" title="Download Complete Engineering Specification PDF">
+          📑 PDF Spec ↗
+        </a>
+      </nav>
+    </div>
+  </header>
+
+  <!-- ════════════════════ MAIN CONTENT ════════════════════ -->
+  <main id="main-content" class="site-main">
+    <div class="container">
+
+      <!-- ── VIEW 1: SCRIPT STUDIO (PRIMARY WORKSPACE) ── -->
+      <div id="view-studio" class="view-panel active">
+
+        <!-- Hero Section -->
+        <section class="hero" aria-labelledby="hero-heading">
+          <div class="hero-eyebrow">
+            <span class="eyebrow-chip">✨ Agentic Cinema Hackathon</span>
+            <div class="hero-tech-stack">
+              <span class="tech-tag tech-tag--adk">Google ADK</span>
+              <span class="tech-tag tech-tag--gemini">Gemini 3.5 Flash</span>
+              <span class="tech-tag tech-tag--parallel">Parallel AI MCP</span>
+              <span class="tech-tag tech-tag--firestore">Firestore Canon</span>
+            </div>
+          </div>
+
+          <h1 id="hero-heading" class="hero-title">
+            Autonomous Continuity Analysis<br />
+            <span class="hero-gradient-text">Before The Cameras Roll.</span>
+          </h1>
+          <p class="hero-subtitle">
+            Upload or paste any screenplay scene. The multi-agent network cross-references internal show bible canon in Firestore and conducts real-world web grounding via Parallel AI MCP in under 5 seconds.
+          </p>
+        </section>
+
+        <!-- Script Input Section -->
+        <section class="card studio-card" aria-labelledby="studio-heading">
+          <div class="studio-card-top">
+            <div class="studio-card-heading-group">
+              <h2 id="studio-heading" class="section-title">
+                <span class="title-accent">01 /</span> Screenplay Analyzer
+              </h2>
+              <span class="section-desc">Paste script text or choose a calibrated demo scenario</span>
+            </div>
+
+            <!-- Quick Demo Loaders -->
+            <div class="demo-selector-group">
+              <span class="demo-selector-label">Load Demo:</span>
+              <div class="demo-chips">
+                <button type="button" class="btn-demo-chip active" data-sample="hero" title="Maya's Brother Daniel + Penicillin Year Contradictions">
+                  🚨 Hero Contradictions
+                </button>
+                <button type="button" class="btn-demo-chip" data-sample="medical" title="Penicillin Allergy Conflict">
+                  💊 Medical Conflict
+                </button>
+                <button type="button" class="btn-demo-chip" data-sample="clean" title="Canon Clean Scene with Zero Issues">
+                  ✅ Clean Scene (0 Issues)
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <form id="check-form" class="studio-form" novalidate>
+            <!-- Form Grid -->
+            <div class="form-row">
+              <div class="field-group field-group--id">
+                <label class="field-label" for="episode-id">
+                  Target Episode ID
+                  <span class="field-hint">Draft sequence</span>
+                </label>
+                <div class="input-icon-wrap">
+                  <span class="input-icon">#</span>
+                  <input
+                    id="episode-id"
+                    name="episode_id"
+                    type="text"
+                    class="field-input field-input--id"
+                    placeholder="s01e04"
+                    value="s01e04"
+                    autocomplete="off"
+                    spellcheck="false"
+                    aria-required="true"
+                    aria-describedby="episode-id-error"
+                  />
+                </div>
+                <span id="episode-id-error" class="field-error" role="alert" aria-live="polite"></span>
+              </div>
+
+              <div class="field-group field-group--tools">
+                <label class="field-label">Active Agents</label>
+                <div class="agent-pills-row">
+                  <span class="agent-status-tag" title="Extracts facts from screenplay">
+                    <span class="dot dot--active"></span> FactExtractor
+                  </span>
+                  <span class="agent-status-tag" title="Checks against Firestore Show Bible">
+                    <span class="dot dot--active"></span> InternalChecker
+                  </span>
+                  <span class="agent-status-tag" title="Searches live web with Parallel AI MCP">
+                    <span class="dot dot--active"></span> RealWorldChecker
+                  </span>
+                  <span class="agent-status-tag" title="Synthesizes findings into studio report">
+                    <span class="dot dot--active"></span> ReportBuilder
+                  </span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Script Textarea (Screenplay slate) -->
+            <div class="field-group">
+              <div class="textarea-header">
+                <label class="field-label" for="script-text">
+                  Screenplay Draft Text
+                  <span class="field-hint">Standard fountain / slugline format</span>
+                </label>
+                <span class="char-count" id="char-count">0 characters</span>
+              </div>
+
+              <div class="slate-editor-container">
+                <div class="slate-lines-gutter" aria-hidden="true">
+                  <span>1</span><span>2</span><span>3</span><span>4</span><span>5</span>
+                  <span>6</span><span>7</span><span>8</span><span>9</span><span>10</span>
+                  <span>11</span><span>12</span><span>13</span><span>14</span><span>15</span>
+                </div>
+                <textarea
+                  id="script-text"
+                  name="script_text"
+                  class="field-input slate-textarea"
+                  placeholder="INT. MAYA'S APARTMENT - NIGHT&#10;&#10;MAYA pours two glasses of scotch as DETECTIVE CARTER enters..."
+                  rows="11"
+                  aria-required="true"
+                  aria-describedby="script-text-error"
+                ></textarea>
+              </div>
+              <span id="script-text-error" class="field-error" role="alert" aria-live="polite"></span>
+            </div>
+
+            <!-- Global Error Banner -->
+            <div id="form-error" class="banner banner--error" role="alert" aria-live="assertive" hidden></div>
+
+            <!-- Action Bar -->
+            <div class="studio-action-bar">
+              <div class="action-hints">
+                <span class="hint-key">Tip:</span> Uses Google ADK ThreadPool concurrency for sub-second verification.
+              </div>
+              <button id="submit-btn" type="submit" class="btn btn--primary">
+                <span class="btn-glow" aria-hidden="true"></span>
+                <span class="btn-label">
+                  <span class="btn-icon">⚡</span> Run Continuity Analysis
+                </span>
+                <span class="btn-spinner" aria-hidden="true" hidden></span>
+              </button>
+            </div>
+          </form>
+        </section>
+
+        <!-- ── RESULTS SECTION ── -->
+        <section
+          id="results-section"
+          class="results-section"
+          aria-labelledby="results-heading"
+          aria-live="polite"
+          hidden
+        >
+          <!-- Section Heading with Filter Tabs -->
+          <div class="results-header-bar">
+            <div>
+              <h2 id="results-heading" class="section-title">
+                <span class="title-accent">02 /</span> Continuity Inspection Report
+              </h2>
+              <span class="section-desc">Executive studio breakdown &amp; detected narrative deviations</span>
+            </div>
+
+            <div class="results-filter-tabs">
+              <button type="button" class="filter-tab active" data-filter="all" id="filter-all">
+                All Issues <span class="tab-badge" id="badge-all-count">0</span>
+              </button>
+              <button type="button" class="filter-tab" data-filter="internal" id="filter-internal">
+                Show Bible <span class="tab-badge tab-badge--internal" id="badge-internal-count">0</span>
+              </button>
+              <button type="button" class="filter-tab" data-filter="real_world" id="filter-realworld">
+                Real-World <span class="tab-badge tab-badge--realworld" id="badge-realworld-count">0</span>
+              </button>
+            </div>
+          </div>
+
+          <!-- Executive Summary Card -->
+          <div id="summary-card" class="card summary-card">
+            <div class="summary-top">
+              <div class="summary-meta-left">
+                <span class="status-indicator-tag" id="summary-status-tag">
+                  <span class="dot dot--warning"></span> Issues Detected
+                </span>
+                <span id="summary-episode-badge" class="episode-badge">s01e04</span>
+                <span id="summary-timestamp" class="summary-timestamp">Just now</span>
+              </div>
+              <div class="summary-actions">
+                <button type="button" class="btn btn--ghost btn--sm" id="btn-export-report">
+                  📋 Export Studio Markdown
+                </button>
+              </div>
+            </div>
+
+            <div class="summary-content">
+              <div class="summary-icon-box">
+                <span class="summary-icon">📝</span>
+              </div>
+              <div class="summary-text-group">
+                <h3 class="summary-heading">Script Supervisor Executive Brief</h3>
+                <p id="summary-text" class="summary-text">Analyzing script findings...</p>
+              </div>
+            </div>
+          </div>
+
+          <!-- All Clear Card -->
+          <div id="all-clear" class="card all-clear-card" hidden>
+            <div class="all-clear-icon-glow">
+              <span class="all-clear-icon" aria-hidden="true">🎬</span>
+            </div>
+            <div class="all-clear-content">
+              <h3 class="all-clear-title">Canon Certified — 100% Continuity Pass</h3>
+              <p class="all-clear-text">
+                Zero character contradictions, timeline breaks, or factual inaccuracies were found. This screenplay draft is fully consistent with established Show Bible canon and real-world reference facts.
+              </p>
+            </div>
+          </div>
+
+          <!-- Issue Cards List -->
+          <ul id="issue-list" class="issue-list" aria-label="Flagged continuity issues"></ul>
+
+          <!-- Script Doctor Auto-Rewrite Agent Panel -->
+          <div id="rewrite-panel" class="card rewrite-panel" hidden>
+            <div class="rewrite-card-header">
+              <div class="rewrite-title-group">
+                <div class="script-doctor-badge">
+                  <span class="sparkle">✨</span> Autonomous Script Doctor Agent
+                </div>
+                <h3 class="rewrite-main-title">One-Click Screenplay Revision</h3>
+                <p class="rewrite-main-subtitle">
+                  Gemini 3.5 autonomously synthesizes a corrected screenplay draft that seamlessly resolves every flagged contradiction while preserving dramatic voice and pace.
+                </p>
+              </div>
+
+              <button id="btn-run-rewrite" type="button" class="btn btn--doctor">
+                <span class="btn-glow" aria-hidden="true"></span>
+                <span class="rewrite-btn-label">
+                  <span>🪄</span> Auto-Fix &amp; Rewrite Script
+                </span>
+                <span class="rewrite-spinner" aria-hidden="true" hidden></span>
+              </button>
+            </div>
+
+            <!-- Output Box -->
+            <div id="rewrite-output" class="rewrite-output" hidden>
+              <!-- Editorial notes -->
+              <div class="editorial-notes-card">
+                <div class="notes-header">
+                  <span class="notes-icon">📌</span>
+                  <span class="notes-title">Script Doctor Editorial Changes</span>
+                </div>
+                <p id="rewrite-summary-text" class="notes-body"></p>
+              </div>
+
+              <!-- Revised Script Slate -->
+              <div class="revised-slate-card">
+                <div class="revised-slate-header">
+                  <div class="slate-title-group">
+                    <span class="slate-icon">📄</span>
+                    <span class="slate-title">Corrected Production Draft</span>
+                    <span class="slate-tag">Canon Verified</span>
+                  </div>
+                  <button id="btn-copy-rewrite" type="button" class="btn-copy">
+                    📋 Copy Screenplay
+                  </button>
+                </div>
+                <pre id="rewritten-script-content" class="revised-script-content"></pre>
+              </div>
+            </div>
+          </div>
+
+        </section>
+
+      </div><!-- /#view-studio -->
+
+      <!-- ── VIEW 2: INTERACTIVE API REFERENCE (PROFESSIONAL DEVELOPER HUB) ── -->
+      <div id="view-apidocs" class="view-panel" hidden>
+        <section class="card api-hub-card">
+          <div class="api-hub-header">
+            <div class="api-hub-title-group">
+              <span class="eyebrow-chip">REST API Specification</span>
+              <h2 class="api-hub-title">🎬 Continuity Guardian Developer Hub</h2>
+              <p class="api-hub-subtitle">
+                Complete OpenAPI 3.1 specification for integrating the Continuity Guardian multi-agent pipeline directly into studio production tools, Final Draft extensions, or writers-room workflows.
+              </p>
+            </div>
+            <div class="api-hub-actions">
+              <a href="ContinuityGuardian_System_Documentation.pdf" target="_blank" rel="noopener noreferrer" class="btn btn--secondary btn--sm">
+                📑 System Spec (PDF)
+              </a>
+              <a href="http://localhost:8000/docs" target="_blank" rel="noopener noreferrer" class="btn btn--primary btn--sm nav-link--api">
+                Interactive Swagger UI ↗
+              </a>
+              <a href="http://localhost:8000/redoc" target="_blank" rel="noopener noreferrer" class="btn btn--outline btn--sm">
+                ReDoc View ↗
+              </a>
+            </div>
+          </div>
+
+          <!-- Base URL Card -->
+          <div class="api-meta-strip">
+            <div class="meta-item">
+              <span class="meta-label">BASE URL</span>
+              <code class="meta-code" id="api-base-display">http://localhost:8000</code>
+            </div>
+            <div class="meta-item">
+              <span class="meta-label">AGENT ENGINE</span>
+              <span class="meta-val">Google Gemini 3.5 + ADK</span>
+            </div>
+            <div class="meta-item">
+              <span class="meta-label">CANON STORE</span>
+              <span class="meta-val">Cloud Firestore (Multi-Season)</span>
+            </div>
+            <div class="meta-item">
+              <span class="meta-label">WEB MCP</span>
+              <span class="meta-val">Parallel AI MCP Search</span>
+            </div>
+          </div>
+
+          <!-- Endpoints Explorer -->
+          <div class="endpoints-list">
+
+            <!-- Endpoint 1: POST /check-episode -->
+            <div class="endpoint-card">
+              <div class="endpoint-header">
+                <span class="http-badge http-post">POST</span>
+                <span class="endpoint-path">/check-episode</span>
+                <span class="endpoint-desc">Analyze screenplay draft for continuity and factual errors</span>
+              </div>
+              <div class="endpoint-body">
+                <div class="api-columns">
+                  <div class="api-col">
+                    <span class="col-title">Request Body (JSON)</span>
+                    <pre class="code-block"><code>{
+  "episode_id": "s01e04",
+  "script_text": "INT. MAYA'S APARTMENT - NIGHT\nMAYA: My brother Daniel is alive..."
+}</code></pre>
+                  </div>
+                  <div class="api-col">
+                    <span class="col-title">Response 200 OK (JSON)</span>
+                    <pre class="code-block"><code>{
+  "episode_id": "s01e04",
+  "summary": "The analysis found 2 high-confidence continuity issues...",
+  "results": [
+    {
+      "claim": { "text": "Daniel is alive", "claim_type": "internal", "source_line": 2 },
+      "is_contradiction": true,
+      "explanation": "Contradicts s01e01 where Daniel died in 2021 car accident.",
+      "suggested_fix": "Refer to Daniel in the past tense or clarify.",
+      "confidence": 0.95
+    }
+  ],
+  "generated_at": "2026-09-08T16:00:00Z"
+}</code></pre>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Endpoint 2: POST /rewrite-script -->
+            <div class="endpoint-card">
+              <div class="endpoint-header">
+                <span class="http-badge http-post">POST</span>
+                <span class="endpoint-path">/rewrite-script</span>
+                <span class="endpoint-desc">Script Doctor Agent: autonomously rewrites screenplay to resolve contradictions</span>
+              </div>
+              <div class="endpoint-body">
+                <div class="api-columns">
+                  <div class="api-col">
+                    <span class="col-title">Request Body (JSON)</span>
+                    <pre class="code-block"><code>{
+  "episode_id": "s01e04",
+  "original_script": "MAYA: My brother Daniel called me today...",
+  "issues": [
+    { "explanation": "Daniel died in 2021", "suggested_fix": "Past tense" }
+  ]
+}</code></pre>
+                  </div>
+                  <div class="api-col">
+                    <span class="col-title">Response 200 OK (JSON)</span>
+                    <pre class="code-block"><code>{
+  "rewritten_script": "MAYA: I was thinking about Daniel today. I miss him...",
+  "changes_summary": "Revised Maya's line to reference Daniel's memory."
+}</code></pre>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Endpoint 3: GET /show-bible -->
+            <div class="endpoint-card">
+              <div class="endpoint-header">
+                <span class="http-badge http-get">GET</span>
+                <span class="endpoint-path">/show-bible</span>
+                <span class="endpoint-desc">Fetch full Show Bible canon records with character rosters and key facts</span>
+              </div>
+              <div class="endpoint-body">
+                <pre class="code-block"><code>[
+  {
+    "episode_id": "s01e01",
+    "characters_mentioned": ["Maya", "Daniel", "Detective Carter", "Alex"],
+    "key_facts": ["Maya's brother Daniel died in a car accident in 2021..."],
+    "real_world_claims": ["The Golden Gate Bridge is in San Francisco..."],
+    "date_added": "2024-01-15T10:00:00Z"
+  }
+]</code></pre>
+              </div>
+            </div>
+
+            <!-- Endpoint 4: GET /health -->
+            <div class="endpoint-card">
+              <div class="endpoint-header">
+                <span class="http-badge http-get">GET</span>
+                <span class="endpoint-path">/health</span>
+                <span class="endpoint-desc">Service health and deployment readiness probe</span>
+              </div>
+              <div class="endpoint-body">
+                <pre class="code-block"><code>{ "status": "ok" }</code></pre>
+              </div>
+            </div>
+
+          </div>
+        </section>
+      </div><!-- /#view-apidocs -->
+
+    </div><!-- /.container -->
+  </main>
+
+  <!-- ════════════════════ SHOW BIBLE MODAL ════════════════════ -->
+  <div id="show-bible-modal" class="modal-backdrop" hidden>
+    <div class="modal-card" role="dialog" aria-modal="true" aria-labelledby="modal-title">
+      <div class="modal-header">
+        <div class="modal-title-group">
+          <span class="modal-eyebrow">Firestore Persistent Database</span>
+          <h3 id="modal-title">📖 Show Bible Canon Explorer</h3>
+        </div>
+        <button id="btn-close-modal" type="button" class="btn-close" aria-label="Close modal">&times;</button>
+      </div>
+      <div id="modal-body" class="modal-body">
+        <div class="modal-loading">
+          <span class="loading-spinner"></span>
+          <p class="loading-text">Loading Show Bible canon from Firestore...</p>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <span class="modal-footer-hint">Synced with Google Cloud Firestore database <code>continuity-guardian-e4064</code></span>
+        <button type="button" class="btn btn--outline btn--sm" id="btn-modal-close-action">Close</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ════════════════════ FOOTER ════════════════════ -->
+  <footer class="site-footer" role="contentinfo">
+    <div class="container footer-inner">
+      <div class="footer-top">
+        <div class="footer-brand">
+          <span class="footer-logo">🎬 Continuity Guardian</span>
+          <p class="footer-tagline">Autonomous script continuity &amp; factual verification for the entertainment value chain.</p>
+        </div>
+        <div class="footer-badges">
+          <span class="tech-tag tech-tag--adk">Google ADK</span>
+          <span class="tech-tag tech-tag--gemini">Gemini 3.5</span>
+          <span class="tech-tag tech-tag--parallel">Parallel AI MCP</span>
+          <span class="tech-tag tech-tag--firestore">Firestore</span>
+        </div>
+      </div>
+      <div class="footer-bottom">
+        <p class="footer-copy">
+          Built for the <strong>Agentic Cinema Hackathon</strong>. Powered by Google Cloud &amp; Gemini.
+        </p>
+        <p class="footer-copy footer-copy--dim">
+          Continuity Guardian provides advisory editorial analysis. Always verify revisions with the writing team.
+        </p>
+      </div>
+    </div>
+  </footer>
+
+  <script src="app.js"></script>
+</body>
+</html>

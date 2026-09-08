@@ -1,0 +1,47 @@
+{
+  "version": 2,
+  "builds": [
+    {
+      "src": "api/main.py",
+      "use": "@vercel/python"
+    },
+    {
+      "src": "frontend/**",
+      "use": "@vercel/static"
+    }
+  ],
+  "routes": [
+    {
+      "src": "/(check-episode|rewrite-script|show-bible|episodes|health|docs|redoc|openapi.json)(.*)",
+      "dest": "api/main.py"
+    },
+    {
+      "src": "/api/(.*)",
+      "dest": "api/main.py"
+    },
+    {
+      "src": "/ContinuityGuardian_System_Documentation.pdf",
+      "dest": "frontend/ContinuityGuardian_System_Documentation.pdf"
+    },
+    {
+      "src": "/favicon.png",
+      "dest": "frontend/favicon.png"
+    },
+    {
+      "src": "/app.js",
+      "dest": "frontend/app.js"
+    },
+    {
+      "src": "/styles.css",
+      "dest": "frontend/styles.css"
+    },
+    {
+      "src": "/assets/(.*)",
+      "dest": "frontend/assets/$1"
+    },
+    {
+      "src": "/(.*)",
+      "dest": "frontend/$1"
+    }
+  ]
+}

@@ -1,0 +1,59 @@
+[
+  {
+    "episode_id": "s01e01",
+    "characters_mentioned": [
+      "Maya",
+      "Daniel",
+      "Detective Carter",
+      "Alex"
+    ],
+    "key_facts": [
+      "Maya's brother Daniel died in a car accident in 2021 near the Golden Gate Bridge.",
+      "Maya works as an independent private investigator based out of Portland, Oregon.",
+      "Detective Carter is Maya's former partner at the Portland Police Department.",
+      "Alex is Maya's chief intelligence analyst and suffers from severe chronic asthma."
+    ],
+    "real_world_claims": [
+      "The Golden Gate Bridge is located in San Francisco, California.",
+      "Portland is the largest city in the state of Oregon."
+    ],
+    "date_added": "2024-01-15T10:00:00Z"
+  },
+  {
+    "episode_id": "s01e02",
+    "characters_mentioned": [
+      "Maya",
+      "Dr. Robert Vance",
+      "Alex"
+    ],
+    "key_facts": [
+      "Dr. Robert Vance lost his left hand in an industrial laboratory explosion in 2018.",
+      "Dr. Vance was the chief geneticist at Apex Corporation until his termination in November 2020.",
+      "Maya is severely allergic to penicillin and carries an epinephrine auto-injector.",
+      "Apex Corporation's primary global headquarters is located in Seattle, Washington."
+    ],
+    "real_world_claims": [
+      "Alexander Fleming discovered penicillin in 1928 at St. Mary's Hospital in London.",
+      "Seattle is the largest city in the state of Washington."
+    ],
+    "date_added": "2024-01-22T10:00:00Z"
+  },
+  {
+    "episode_id": "s01e03",
+    "characters_mentioned": [
+      "Maya",
+      "Detective Carter",
+      "Alex"
+    ],
+    "key_facts": [
+      "Detective Carter cannot swim due to severe childhood aquaphobia.",
+      "Alex's grandfather served as a naval cryptographer in the Pacific theater during World War II.",
+      "The secret archive beneath Maya's detective agency requires an 8-digit biometric passkey."
+    ],
+    "real_world_claims": [
+      "World War II ended in September 1945.",
+      "The human genome contains approximately 3 billion base pairs of DNA."
+    ],
+    "date_added": "2024-01-29T10:00:00Z"
+  }
+]

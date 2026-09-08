@@ -1,0 +1,41 @@
+# Environment variables — never commit real secrets
+.env
+.env.*
+!.env.example
+
+# Firebase service-account key files & GCP credentials — NEVER commit these
+# They grant full administrative access to your Firestore database and Google Cloud
+data/firebase-sa.json
+data/*adminsdk*.json
+data/*firebase*.json
+*-firebase-adminsdk-*.json
+*-service-account.json
+*firebase-adminsdk*.json
+service_account.json
+credentials.json
+*.pem
+*.key
+
+# Python bytecode and caches
+__pycache__/
+*.py[cod]
+*$py.class
+.pytest_cache/
+.ruff_cache/
+
+# Virtual environments
+.venv/
+venv/
+env/
+ENV/
+
+# Vercel deployment cache
+.vercel/
+
+# IDE & Editor files
+.vscode/
+.idea/
+
+# OS metadata
+.DS_Store
+Thumbs.db
