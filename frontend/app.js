@@ -1,6 +1,7 @@
 /**
  * app.js — Continuity Guardian (Studio Edition)
- *
+ */
+
 // Dynamic API base URL: defaults to localhost:8000 when served from frontend dev server on port 3000,
 // and relative "" in production/Vercel or when served directly from the FastAPI origin.
 const API_BASE_URL = (window.location.hostname === "localhost" && window.location.port === "3000")
@@ -601,4 +602,22 @@ function formatTimestamp(iso) {
   } catch (_) {
     return iso;
   }
+}
+
+// ─── Query Param Handler ───────────────────────────────────────────────────
+// If user arrived from an accidental GET submission, populate inputs and clean URL
+if (window.location.search) {
+  try {
+    const params = new URLSearchParams(window.location.search);
+    if (params.get("episode_id") && episodeInput) {
+      episodeInput.value = params.get("episode_id");
+    }
+    if (params.get("script_text") && scriptInput) {
+      scriptInput.value = params.get("script_text");
+      if (typeof updateCharCount === "function") {
+        updateCharCount();
+      }
+    }
+    window.history.replaceState({}, document.title, window.location.pathname);
+  } catch (_) {}
 }
