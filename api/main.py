@@ -1481,7 +1481,7 @@ async def rewrite_script(body: RewriteScriptRequest) -> RewriteScriptResponse:
 
     genai.configure(api_key=api_key)
     model = genai.GenerativeModel(
-        model_name="gemini-3.5-flash",
+        model_name=os.getenv("GEMINI_MODEL", "gemini-3.6-flash"),
         system_instruction=(
             "You are an expert Hollywood Script Doctor and Continuity Editor. "
             "Your task is to take a screenplay scene containing continuity errors "
@@ -1508,20 +1508,49 @@ async def rewrite_script(body: RewriteScriptRequest) -> RewriteScriptResponse:
         "}"
     )
 
+    candidates = [
+        os.getenv("GEMINI_MODEL", "gemini-flash-latest"),
+        "gemini-flash-latest",
+        "gemini-3.7-flash",
+        "gemini-3.8-flash",
+        "gemini-3.6-flash",
+    ]
+    seen = set()
+    text = ""
+    for name in candidates:
+        if not name or name in seen:
+            continue
+        seen.add(name)
+        try:
+            m = genai.GenerativeModel(
+                model_name=name,
+                system_instruction=(
+                    "You are an expert Hollywood Script Doctor and Continuity Editor. "
+                    "Your task is to take a screenplay scene containing continuity errors "
+                    "and factual mistakes, and rewrite it so that all contradictions are cleanly "
+                    "fixed while preserving character voices, dramatic tension, and screenplay formatting."
+                ),
+            )
+            response = m.generate_content(prompt)
+            if response and response.text:
+                text = response.text.strip()
+                break
+        except Exception as exc:
+            logger.warning("Script doctor candidate %s failed: %s — trying next.", name, exc)
+            continue
+
     try:
-        response = model.generate_content(prompt)
-        text = response.text.strip()
         if text.startswith("```"):
             text = text.split("\n", 1)[-1]
         if text.endswith("```"):
             text = text.rsplit("```", 1)[0]
-        data = json.loads(text.strip())
+        data = json.loads(text.strip()) if text else {}
         return RewriteScriptResponse(
             rewritten_script=data.get("rewritten_script", body.original_script),
             changes_summary=data.get("changes_summary", "Continuity fixes applied."),
         )
     except Exception as exc:
-        logger.error("Script rewrite failed: %s", exc)
+        logger.error("Script rewrite parse failed: %s", exc)
         return RewriteScriptResponse(
             rewritten_script=body.original_script,
             changes_summary=f"Could not automatically rewrite script: {exc}",

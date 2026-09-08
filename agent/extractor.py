@@ -94,7 +94,7 @@ class FactExtractor:
 
     def __init__(
         self,
-        model_name: str = "gemini-3.5-flash",
+        model_name: str | None = None,
         ttl_seconds: int = 24 * 60 * 60,
     ) -> None:
         api_key = os.getenv("GEMINI_API_KEY")
@@ -106,13 +106,14 @@ class FactExtractor:
 
         genai.configure(api_key=api_key)
 
+        resolved_model = model_name or os.getenv("GEMINI_MODEL", "gemini-3.6-flash")
         self._model = genai.GenerativeModel(
-            model_name=model_name,
+            model_name=resolved_model,
             system_instruction=_SYSTEM_INSTRUCTION,
         )
         self._cache = SimpleCache(ttl_seconds=ttl_seconds)
 
-        logger.info("FactExtractor initialised (model=%s).", model_name)
+        logger.info("FactExtractor initialised (model=%s).", resolved_model)
 
     # ------------------------------------------------------------------
     # Public API
@@ -181,19 +182,32 @@ class FactExtractor:
     def _call_gemini(self, prompt: str) -> str:
         """
         Send *prompt* to the Gemini model and return the raw text response.
-
-        Any API-level exception is caught here so the caller can decide
-        how to handle it (retry, log, return empty list, etc.).
-
-        Returns:
-            The model's response text, or an empty string on error.
+        Automatically fails over across healthy model candidates if a quota limit (429) occurs.
         """
-        try:
-            response = self._model.generate_content(prompt)
-            return response.text or ""
-        except Exception as exc:  # noqa: BLE001
-            logger.error("Gemini API call failed: %s", exc)
-            return ""
+        candidates = [
+            getattr(self, "_model_name", None) or "gemini-flash-latest",
+            "gemini-flash-latest",
+            "gemini-3.7-flash",
+            "gemini-3.8-flash",
+            "gemini-3.6-flash",
+        ]
+        seen = set()
+        for name in candidates:
+            if not name or name in seen:
+                continue
+            seen.add(name)
+            try:
+                m = genai.GenerativeModel(
+                    model_name=name,
+                    system_instruction=_SYSTEM_INSTRUCTION,
+                )
+                response = m.generate_content(prompt)
+                if response and response.text:
+                    return response.text
+            except Exception as exc:
+                logger.warning("FactExtractor model '%s' failed: %s — trying next candidate.", name, exc)
+                continue
+        return ""
 
     def _parse_claims(self, raw: str) -> list[Claim] | None:
         """

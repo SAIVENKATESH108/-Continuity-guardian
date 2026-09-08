@@ -244,7 +244,7 @@ class ShowBibleRepository:
                     .where(
                         filter=firestore.FieldFilter(
                             "characters_mentioned",
-                            "array-contains-any",
+                            "array_contains_any",
                             chars_to_query,
                         )
                     )

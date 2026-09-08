@@ -52,7 +52,7 @@ load_dotenv()
 
 logger = logging.getLogger(__name__)
 
-_GEMINI_MODEL = "gemini-3.5-flash"
+_GEMINI_MODEL = os.getenv("GEMINI_MODEL", "gemini-3.6-flash")
 
 # Parallel AI MCP search endpoint
 _PARALLEL_SEARCH_URL = "https://search-mcp.parallel.ai/mcp"
@@ -108,13 +108,31 @@ def _configure_gemini() -> None:
 
 
 def _call_gemini(model: genai.GenerativeModel, prompt: str) -> str:
-    """Send *prompt* to *model* and return the raw text response, or '' on error."""
-    try:
-        response = model.generate_content(prompt)
-        return response.text or ""
-    except Exception as exc:  # noqa: BLE001
-        logger.error("Gemini API call failed: %s", exc)
-        return ""
+    """Send *prompt* to *model* and return the raw text response, with multi-model quota failover."""
+    candidates = [
+        getattr(model, "_model_name", None) or "gemini-flash-latest",
+        "gemini-flash-latest",
+        "gemini-3.7-flash",
+        "gemini-3.8-flash",
+        "gemini-3.6-flash",
+    ]
+    seen = set()
+    for name in candidates:
+        if not name or name in seen:
+            continue
+        seen.add(name)
+        try:
+            m = genai.GenerativeModel(
+                model_name=name,
+                system_instruction=_CHECKER_SYSTEM_INSTRUCTION,
+            )
+            response = m.generate_content(prompt)
+            if response and response.text:
+                return response.text
+        except Exception as exc:
+            logger.warning("Checker model '%s' call failed: %s — trying next candidate.", name, exc)
+            continue
+    return ""
 
 
 def _parse_check_result(raw: str, claim: Claim) -> CheckResult | None:
@@ -310,6 +328,76 @@ class InternalChecker(BaseChecker):
                 lines.append("  (no key facts recorded for this episode)")
         return "\n".join(lines)
 
+    def check_batch(
+        self, claims: list[Claim], context: list[EpisodeRecord]
+    ) -> list[CheckResult]:
+        """
+        Evaluate a batch of internal claims in a single unified Gemini call.
+        Eliminates free-tier rate limit (429) bottlenecks and dramatically reduces latency.
+        """
+        if not claims:
+            return []
+
+        prior_facts_block = self._format_prior_facts(context)
+        claims_block = "\n".join(
+            f"Claim [{i}]: {c.text} (line {c.source_line})"
+            for i, c in enumerate(claims)
+        )
+
+        prompt = (
+            f"PRIOR ESTABLISHED SHOW BIBLE CANON:\n{prior_facts_block}\n\n"
+            f"CLAIMS EXTRACTED FROM DRAFT TO VERIFY:\n{claims_block}\n\n"
+            "TASK:\n"
+            "For each claim above, check whether it contradicts any established facts in the show bible canon.\n"
+            "Respond in strict JSON with a JSON array where each item corresponds to one claim:\n"
+            "[\n"
+            "  {\n"
+            '    "claim_index": 0,\n'
+            '    "is_contradiction": true or false,\n'
+            '    "explanation": "Detailed analysis of why it contradicts canon or is consistent",\n'
+            '    "suggested_fix": "Screenplay repair recommendation if contradiction, else empty string",\n'
+            '    "confidence": 0.95\n'
+            "  }\n"
+            "]\n"
+            "Rules:\n"
+            "- Output valid JSON only (no markdown fences, no extra text).\n"
+            f"- Check every claim index from 0 to {len(claims) - 1}."
+        )
+
+        raw = _call_gemini(self._model, prompt)
+        cleaned = raw.strip()
+        if cleaned.startswith("```"):
+            cleaned = cleaned.split("\n", 1)[-1]
+        if cleaned.endswith("```"):
+            cleaned = cleaned.rsplit("```", 1)[0]
+        cleaned = cleaned.strip()
+
+        results_map: dict[int, CheckResult] = {}
+        try:
+            data = json.loads(cleaned)
+            if isinstance(data, list):
+                for item in data:
+                    idx = item.get("claim_index")
+                    if idx is not None and 0 <= idx < len(claims):
+                        claim = claims[idx]
+                        results_map[idx] = CheckResult(
+                            claim=claim,
+                            is_contradiction=bool(item.get("is_contradiction", False)),
+                            explanation=str(item.get("explanation", "Consistent with established canon.")),
+                            suggested_fix=str(item.get("suggested_fix", "")),
+                            confidence=float(item.get("confidence", 0.9)),
+                        )
+        except Exception as exc:
+            logger.warning("Failed to parse batch JSON in InternalChecker: %s", exc)
+
+        results: list[CheckResult] = []
+        for i, c in enumerate(claims):
+            if i in results_map:
+                results.append(results_map[i])
+            else:
+                results.append(self.check(c, context))
+        return results
+
 
 # ---------------------------------------------------------------------------
 # RealWorldChecker
@@ -409,18 +497,18 @@ class RealWorldChecker(BaseChecker):
             "id": 1,
             "method": "tools/call",
             "params": {
-                "name": "search",
+                "name": "web_search_preview",
                 "arguments": {
-                    "query": query,
-                    "objective": (
-                        f"Verify whether the following claim is factually accurate: "
-                        f"{query}"
-                    ),
+                    "objective": f"Verify whether the following claim is factually accurate: {query}",
+                    "search_queries": [query[:100]],
                 },
             },
         }
 
-        headers = {"Content-Type": "application/json"}
+        headers = {
+            "Content-Type": "application/json",
+            "Accept": "application/json",
+        }
         if self._parallel_api_key:
             headers["Authorization"] = f"Bearer {self._parallel_api_key}"
 
@@ -461,19 +549,26 @@ class RealWorldChecker(BaseChecker):
         Extract the useful text from the MCP JSON-RPC response and format it
         as a readable block for inclusion in the Gemini prompt.
         """
-        # Standard MCP tools/call response wraps content in result.content
         try:
-            content = data["result"]["content"]
+            content = data.get("result", {}).get("content", [])
             if isinstance(content, list):
-                # MCP content items are objects with a "text" field
-                parts = [
-                    item.get("text", "") for item in content
-                    if isinstance(item, dict)
-                ]
-                return "\n\n".join(p for p in parts if p).strip() or "(Empty search result.)"
-            if isinstance(content, str):
-                return content.strip() or "(Empty search result.)"
-        except (KeyError, TypeError):
+                for item in content:
+                    if isinstance(item, dict) and "text" in item:
+                        text_val = item["text"]
+                        try:
+                            inner = json.loads(text_val)
+                            results = inner.get("results", [])
+                            lines = []
+                            for r in results[:3]:
+                                title = r.get("title", "")
+                                url = r.get("url", "")
+                                excerpts = " ".join(r.get("excerpts", []))
+                                lines.append(f"Source: {title} ({url})\nExcerpt: {excerpts}")
+                            if lines:
+                                return "\n\n".join(lines)
+                        except Exception:
+                            return text_val
+        except Exception:
             pass
 
         # Fallback: serialise whatever we got so Gemini can still try
@@ -481,3 +576,71 @@ class RealWorldChecker(BaseChecker):
             return json.dumps(data, indent=2)[:4000]  # cap at 4 000 chars
         except Exception:  # noqa: BLE001
             return "(Could not parse search results.)"
+
+    def check_batch(self, claims: list[Claim]) -> list[CheckResult]:
+        """
+        Evaluate a batch of real-world claims in a single unified Gemini call.
+        Eliminates free-tier rate limit (429) bottlenecks.
+        """
+        if not claims:
+            return []
+
+        search_sections: list[str] = []
+        for i, c in enumerate(claims):
+            s_res = self._search(c.text)
+            search_sections.append(f"Claim [{i}]: '{c.text}'\nLive Web Grounding:\n{s_res}")
+
+        search_block = "\n\n---\n\n".join(search_sections)
+
+        prompt = (
+            f"LIVE WEB GROUNDING CONTEXT:\n{search_block}\n\n"
+            "TASK:\n"
+            "For each claim above, check whether it is accurate or contradicts real-world facts.\n"
+            "Respond in strict JSON with a JSON array:\n"
+            "[\n"
+            "  {\n"
+            '    "claim_index": 0,\n'
+            '    "is_contradiction": true or false,\n'
+            '    "explanation": "State verification via live web search and cite external sources/facts",\n'
+            '    "suggested_fix": "Factual correction if contradiction, else empty string",\n'
+            '    "confidence": 0.95\n'
+            "  }\n"
+            "]\n"
+            "Rules:\n"
+            "- Output valid JSON only (no markdown fences, no extra text).\n"
+            f"- Cover all claims from 0 to {len(claims) - 1}."
+        )
+
+        raw = _call_gemini(self._model, prompt)
+        cleaned = raw.strip()
+        if cleaned.startswith("```"):
+            cleaned = cleaned.split("\n", 1)[-1]
+        if cleaned.endswith("```"):
+            cleaned = cleaned.rsplit("```", 1)[0]
+        cleaned = cleaned.strip()
+
+        results_map: dict[int, CheckResult] = {}
+        try:
+            data = json.loads(cleaned)
+            if isinstance(data, list):
+                for item in data:
+                    idx = item.get("claim_index")
+                    if idx is not None and 0 <= idx < len(claims):
+                        claim = claims[idx]
+                        results_map[idx] = CheckResult(
+                            claim=claim,
+                            is_contradiction=bool(item.get("is_contradiction", False)),
+                            explanation=str(item.get("explanation", "Verified against external sources.")),
+                            suggested_fix=str(item.get("suggested_fix", "")),
+                            confidence=float(item.get("confidence", 0.9)),
+                        )
+        except Exception as exc:
+            logger.warning("Failed to parse batch JSON in RealWorldChecker: %s", exc)
+
+        results: list[CheckResult] = []
+        for i, c in enumerate(claims):
+            if i in results_map:
+                results.append(results_map[i])
+            else:
+                results.append(self.check(c, None))
+        return results

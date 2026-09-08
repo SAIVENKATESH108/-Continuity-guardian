@@ -88,7 +88,7 @@ class ContinuityPipeline:
         report = await pipeline.run(episode_id="s01e03", script_text="...")
     """
 
-    name = "continuity-guardian"
+    name = "continuity_guardian"
     description = (
         "Analyses a TV or film episode script for continuity errors and "
         "real-world factual inaccuracies, cross-referenced against a "
@@ -100,7 +100,7 @@ class ContinuityPipeline:
             try:
                 self.adk_agent = _AdkAgent(
                     name=self.name,
-                    model="gemini-3.5-flash",
+                    model=os.getenv("GEMINI_MODEL", "gemini-3.6-flash"),
                     description=self.description,
                     instruction=(
                         "You are a Hollywood script continuity analyst identifying factual "
@@ -211,9 +211,11 @@ class ContinuityPipeline:
 
         context_episodes: list[EpisodeRecord] = []
         if character_names:
-            context_episodes = await self._run_sync(
+            all_matched = await self._run_sync(
                 self.repository.find_related_facts, character_names
             )
+            # Only compare against prior canonical episodes — never validate against the unverified draft itself
+            context_episodes = [ep for ep in all_matched if ep.episode_id.lower() != episode_id.lower()]
         logger.info(
             "[3/6] Found %d related episode(s) in show bible.",
             len(context_episodes),
@@ -265,22 +267,29 @@ class ContinuityPipeline:
             report.summary,
         )
 
-        # ── Stage 6: Persist episode to show bible ────────────────────────
-        logger.info("[6/6] Persisting episode to Firestore show bible…")
-        episode_record = _build_episode_record(episode_id, claims)
-        saved = await self._run_sync(self.repository.save_episode, episode_record)
-        if saved:
-            logger.info(
-                "[6/6] Episode=%s saved to show bible (%d key fact(s), %d character(s)).",
-                episode_id,
-                len(episode_record.key_facts),
-                len(episode_record.characters_mentioned),
-            )
+        # ── Stage 6: Persist episode to show bible (only if clean) ────────
+        has_contradictions = any(r.is_contradiction for r in report.results)
+        if not has_contradictions:
+            logger.info("[6/6] Clean episode approved — persisting to Firestore show bible…")
+            episode_record = _build_episode_record(episode_id, claims)
+            saved = await self._run_sync(self.repository.save_episode, episode_record)
+            if saved:
+                logger.info(
+                    "[6/6] Episode=%s saved to show bible (%d key fact(s), %d character(s)).",
+                    episode_id,
+                    len(episode_record.key_facts),
+                    len(episode_record.characters_mentioned),
+                )
+            else:
+                logger.warning(
+                    "[6/6] Could not save episode=%s to Firestore.",
+                    episode_id,
+                )
         else:
-            logger.warning(
-                "[6/6] Could not save episode=%s to Firestore — "
-                "it won't appear in future show-bible lookups.",
+            logger.info(
+                "[6/6] Episode=%s contains %d unapproved contradiction(s) — skipping show-bible persistence.",
                 episode_id,
+                len(report.results),
             )
 
         logger.info("═══ Pipeline complete — episode=%s ═══", episode_id)
@@ -296,20 +305,15 @@ class ContinuityPipeline:
         context: list[EpisodeRecord],
     ) -> list[CheckResult]:
         """
-        Run InternalChecker.check() for every internal claim, each in its
-        own thread so they don't block the event loop.
-
-        Each individual claim check is independent, so we gather them all
-        concurrently within the internal group as well.
+        Run InternalChecker.check_batch() to evaluate all internal claims in a single
+        unified API pass, preventing rate-limiting while providing deep canon context.
         """
         if not claims:
             return []
 
-        tasks = [
-            self._run_sync(self.internal_checker.check, claim, context)
-            for claim in claims
-        ]
-        results: list[CheckResult] = list(await asyncio.gather(*tasks))
+        results: list[CheckResult] = await self._run_sync(
+            self.internal_checker.check_batch, claims, context
+        )
         logger.debug(
             "_run_all_internal: %d claim(s) → %d result(s).",
             len(claims),
@@ -322,18 +326,15 @@ class ContinuityPipeline:
         claims: list[Claim],
     ) -> list[CheckResult]:
         """
-        Run RealWorldChecker.check() for every real-world claim, each in
-        its own thread so network I/O (Parallel Search + Gemini) doesn't
-        block the event loop.
+        Run RealWorldChecker.check_batch() to evaluate all real-world claims in a single
+        unified API pass with live web grounding.
         """
         if not claims:
             return []
 
-        tasks = [
-            self._run_sync(self.real_world_checker.check, claim, None)
-            for claim in claims
-        ]
-        results: list[CheckResult] = list(await asyncio.gather(*tasks))
+        results: list[CheckResult] = await self._run_sync(
+            self.real_world_checker.check_batch, claims
+        )
         logger.debug(
             "_run_all_real_world: %d claim(s) → %d result(s).",
             len(claims),

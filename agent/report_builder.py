@@ -30,7 +30,7 @@ load_dotenv()
 
 logger = logging.getLogger(__name__)
 
-_GEMINI_MODEL = "gemini-3.5-flash"
+_GEMINI_MODEL = os.getenv("GEMINI_MODEL", "gemini-3.6-flash")
 
 _NO_ISSUES_SUMMARY = (
     "No continuity or factual issues found — this script is clear to proceed."
@@ -173,22 +173,31 @@ class ReportBuilder:
         """
         prompt = self._build_summary_prompt(episode_id, flagged)
 
-        try:
-            response = self._model.generate_content(prompt)
-            summary = (response.text or "").strip()
-            if summary:
-                logger.debug(
-                    "Gemini summary generated for episode=%s (%d chars).",
-                    episode_id,
-                    len(summary),
+        candidates = [
+            getattr(self, "_model_name", None) or "gemini-flash-latest",
+            "gemini-flash-latest",
+            "gemini-3.7-flash",
+            "gemini-3.8-flash",
+            "gemini-3.6-flash",
+        ]
+        seen = set()
+        for name in candidates:
+            if not name or name in seen:
+                continue
+            seen.add(name)
+            try:
+                m = genai.GenerativeModel(
+                    model_name=name,
+                    system_instruction=_SUMMARY_SYSTEM_INSTRUCTION,
                 )
-                return summary
-        except Exception as exc:  # noqa: BLE001
-            logger.warning(
-                "Gemini summary call failed for episode=%s: %s — using fallback.",
-                episode_id,
-                exc,
-            )
+                response = m.generate_content(prompt)
+                summary = (response.text or "").strip()
+                if summary:
+                    logger.debug("Gemini summary generated via %s (%d chars).", name, len(summary))
+                    return summary
+            except Exception as exc:
+                logger.warning("ReportBuilder model '%s' failed: %s — trying next.", name, exc)
+                continue
 
         # Graceful fallback: a factually correct (if bland) summary
         return self._fallback_summary(flagged)
